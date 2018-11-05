@@ -2,16 +2,23 @@ import baker
 import requests
 import os
 import commands
-
+from time import sleep
 
 @baker.command
 def download_files(base_url, dir_path, start, end):
+    start, end = int(start), int(end)
     for i in range(start, end):
-        with open("{}/{}.ts".format(dir_path), "w") as f:
+        try:
             url = base_url.format(i)
-            res = requests.get(url)
-            res.raise_for_status()
-            f.write(res.content)
+            print "download {}".format(url)
+            with open("{}/{}.ts".format(dir_path, i), "w") as f:
+                res = requests.get(url)
+                res.raise_for_status()
+                f.write(res.content)
+        except Exception ,e:
+            print "Got exception {}".format(e)
+            sleep(5)
+            download_files(base_url,dir_path,i,end)
 
 
 @baker.command
